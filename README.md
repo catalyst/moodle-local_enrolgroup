@@ -1,8 +1,7 @@
 # Enrol database with groups #
 
-TODO Describe the plugin shortly here.
-
-TODO Provide more detailed description here.
+This is basically a backport of MDL-58785 - allowing older sites to perform an external database group sync.
+NOTE: this plugin adds the component/itemid fields to the core groups table like MDL-51202
 
 ## Installing via uploaded ZIP file ##
 
