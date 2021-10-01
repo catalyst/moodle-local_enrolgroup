@@ -24,7 +24,7 @@
 namespace local_enrolgroup\task;
 
 defined('MOODLE_INTERNAL') || die();
-
+require_once($CFG->dirroot.'/group/lib.php');
 use progress_trace;
 use ADOConnection;
 use core_php_time_limit;
@@ -42,6 +42,11 @@ class helper extends \enrol_database_plugin {
      *
      * @param   progress_trace $trace
      */
+
+    public function get_name() {
+        return 'database';
+    }
+
     public function sync_groups(progress_trace $trace): void {
         global $CFG, $DB;
 
@@ -124,7 +129,7 @@ EOF;
         $table          = $this->get_config('remotegroupstable');
         $coursefield    = trim($this->get_config('groupscourseidnumber'));
         $idnumberfield  = trim($this->get_config('groupsgroupidnumber'));
-        $namefield      = trim($this->get_config('groupsname'));
+        $namefield      = trim($this->get_config('groupsgroupname'));
 
         // Fetch a list of all courses in the remote system for this course.
         $params = [
@@ -277,7 +282,7 @@ EOF;
                 $fields = (object) $this->db_decode($fields);
 
                 $useridnumber = $fields->useridnumber;
-                if (empty($useridname)) {
+                if (empty($useridnumber)) {
                     continue;
                 }
 
@@ -286,38 +291,22 @@ EOF;
         }
         $rs->Close();
 
-        // Fetch users in this course with an idnumber.
-        $sql = <<<EOF
-   SELECT u.idnumber as mappingfield, u.id as userid, gm.id as gmid
-     FROM {enrol} e
-     JOIN {course} c ON c.id = e.courseid
-     JOIN {user_enrolments} ue ON ue.enrolid = e.id
-     JOIN {user} u ON u.id = ue.userid
-LEFT JOIN {groups_members} gm
-          ON gm.userid = u.id
-         AND gm.groupid = :groupid
-         AND gm.component = :component
-         AND gm.itemid = 0
-    WHERE c.id = :courseid AND u.idnumber <> ''
-EOF;
-        $params = [
-            'courseid' => $localcourse->id,
-            'groupid' => $localgroup->id,
-            'component' => 'enrol_database',
-        ];
-        $possiblelocalusers = $DB->get_records_sql_menu($sql, $params);
+
+        $coursecontext = \context_course::instance($localcourse->id);
+
+        $possiblelocalusers = get_enrolled_users($coursecontext, '', 0, 'u.idnumber, u.id, u.username, u.auth', 'u.username ASC');
 
         // Process group memberships.
         foreach ($possiblelocalusers as $useridnumber => $localuser) {
             if (array_key_exists($useridnumber, $remotemembers)) {
-                if (empty($localuser->gmid)) {
-                    // Add this user to the group.
-                    $trace->output("Adding {$localuser->userid} ({$useridnumber}) to {$localgroup->name}");
-                    groups_add_member($localgroup, $localuser->userid, 'enrol_database', 0);
+                // Add this user to the group.
+                if (!groups_is_member($localgroup->id, $localuser->id)) {
+                    $trace->output("Adding {$localuser->id} ({$useridnumber}) to {$localgroup->name}");
+                    groups_add_member($localgroup, $localuser->id, 'enrol_database', 0);
                 }
-            } else {
-                $trace->output("Removing {$localuser->userid} ({$useridnumber}) from {$localgroup->name}");
-                groups_remove_member($localgroup, $localuser->userid);
+            } else if (groups_is_member($localgroup->id, $localuser->id)) {
+                $trace->output("Removing {$localuser->id} ({$useridnumber}) from {$localgroup->name}");
+                groups_remove_member($localgroup, $localuser->id);
             }
         }
     }
