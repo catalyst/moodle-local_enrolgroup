@@ -164,7 +164,8 @@ EOF;
                 $fields = (object) $this->db_decode($fields);
 
                 $name = $fields->name;
-                $idnumber = $fields->idnumber;
+                // If idnumber not set, use the same value as $name.
+                $idnumber = isset($fields->idnumber) ? $fields->idnumber : $name;
 
                 if (empty($name) || empty($idnumber)) {
                     continue;
