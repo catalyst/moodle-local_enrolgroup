@@ -385,9 +385,9 @@ EOF;
         $fields = [];
         foreach ($fieldlist as $index => $field) {
             if (is_int($index)) {
-                $fields[] = "\"$field\"";
+                $fields[] = "$field";
             } else {
-                $fields[] = "\"{$index}\" AS {$field}";
+                $fields[] = "{$index} AS {$field}";
             }
         }
         $fields = !empty($fields) ? implode(',', $fields) : "*";
@@ -396,7 +396,7 @@ EOF;
             foreach ($conditions as $key=>$value) {
                 $value = $this->db_encode($this->db_addslashes($value));
 
-                $where[] = "\"$key\" = '$value'";
+                $where[] = "$key = '$value'";
             }
         }
         $where = $where ? "WHERE ".implode(" AND ", $where) : "";
