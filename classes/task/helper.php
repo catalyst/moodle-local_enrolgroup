@@ -254,6 +254,7 @@ EOF;
         $coursefield    = trim($this->get_config('groupmemberscourseidnumber'));
         $idnumberfield  = trim($this->get_config('groupmembersgroupidnumber'));
         $userfield      = trim($this->get_config('groupmembersuseridnumber'));
+        $localuserfield = get_config('enrol_database', 'localuserfield');
 
         // Fetch membership in the remote system for this group.
         $courseswithgroups = [];
@@ -295,18 +296,18 @@ EOF;
 
         $coursecontext = \context_course::instance($localcourse->id);
 
-        $possiblelocalusers = get_enrolled_users($coursecontext, '', 0, 'u.idnumber, u.id, u.username, u.auth', 'u.username ASC');
+        $possiblelocalusers = get_enrolled_users($coursecontext, '', 0, 'u.id, u.idnumber, u.username, u.auth', 'u.username ASC');
 
         // Process group memberships.
-        foreach ($possiblelocalusers as $useridnumber => $localuser) {
-            if (array_key_exists($useridnumber, $remotemembers)) {
+        foreach ($possiblelocalusers as $localuser) {
+            if (array_key_exists($localuser->$localuserfield, $remotemembers)) {
                 // Add this user to the group.
                 if (!groups_is_member($localgroup->id, $localuser->id)) {
-                    $trace->output("Adding {$localuser->id} ({$useridnumber}) to {$localgroup->name}");
+                    $trace->output("Adding {$localuser->id} ({$localuser->$localuserfield}) to {$localgroup->name}");
                     groups_add_member($localgroup, $localuser->id, 'enrol_database', 0);
                 }
             } else if (groups_is_member($localgroup->id, $localuser->id)) {
-                $trace->output("Removing {$localuser->id} ({$useridnumber}) from {$localgroup->name}");
+                $trace->output("Removing {$localuser->id} ({$localuser->$localuserfield}) from {$localgroup->name}");
                 groups_remove_member($localgroup, $localuser->id);
             }
         }

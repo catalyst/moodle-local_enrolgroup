@@ -25,8 +25,8 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'local_enrolgroup';
-$plugin->release = '0.1.1';
-$plugin->version = 2022071400;
+$plugin->release = '0.1.2';
+$plugin->version = 2022071401;
 $plugin->requires = 2020110900;
 $plugin->maturity = MATURITY_STABLE;
 $plugin->dependencies = [
