@@ -51,3 +51,5 @@ $string['settingsheadergroupsync'] = 'Remote group sync';
 $string['settingsheadergroupsync_desc'] = 'You can synchronise a list of groups to be created within a course, and the membership of each group.';
 $string['syncgroupstask'] = 'Sync enrolment groups';
 $string['privacy:metadata'] = 'The enrolgroup plugin does not store any personal data.';
+$string['sync_coursestask'] = 'enrol_database - stand-alone course sync task';
+$string['sync_enroltask'] = 'enrol_database - stand-alone enrol sync task';

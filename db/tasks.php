@@ -23,8 +23,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$tasks = array(
-    array(
+$tasks = [
+    [
         'classname' => '\local_enrolgroup\task\sync_groups',
         'blocking' => 0,
         'minute' => 'R',
@@ -33,5 +33,25 @@ $tasks = array(
         'month' => '*',
         'dayofweek' => '*',
         'disabled' => 1
-    )
-);
+    ],
+    [
+        'classname' => '\local_enrolgroup\task\sync_courses',
+        'blocking' => 0,
+        'minute' => '10',
+        'hour' => '1',
+        'day' => '*',
+        'month' => '*',
+        'dayofweek' => '*',
+        'disabled' => 1
+    ],
+    [
+       'classname' => '\local_enrolgroup\task\sync_enrolments',
+        'blocking' => 0,
+        'minute' => '50',
+        'hour' => '1',
+        'day' => '*',
+        'month' => '*',
+        'dayofweek' => '*',
+        'disabled' => 1
+    ]
+];
