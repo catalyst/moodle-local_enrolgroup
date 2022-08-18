@@ -111,6 +111,7 @@ EOF;
         foreach ($coursestosync as $courseidnumber => $courseid) {
             $this->sync_groups_for_course($trace, $extdb, $courseid, $courseidnumber);
         }
+        $this->cleanup();
     }
 
     protected function sync_groups_for_course(
@@ -310,6 +311,22 @@ EOF;
                 $trace->output("Removing {$localuser->id} ({$localuser->$localuserfield}) from {$localgroup->name}");
                 groups_remove_member($localgroup, $localuser->id);
             }
+        }
+    }
+
+    /**
+     * Clean up empty groups and delete them.
+     *
+     * @return void
+     */
+    public function cleanup() {
+        global $DB;
+        if (empty($this->get_config('removegroupsaction'))) {
+            // Clean up empty cohorts created by this plugin that are not in use by enrolment plugins.
+            $sql = "DELETE FROM {groups}
+                          WHERE component = 'enrol_database' AND
+                           id NOT in (SELECT distinct groupid FROM {groups_members})";
+            $DB->execute($sql);
         }
     }
 
