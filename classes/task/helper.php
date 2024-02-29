@@ -200,6 +200,7 @@ EOF;
                 $localgroup = $localgroups[$idnumber];
                 if ($localgroup->name !== $name) {
                     // Update it.
+                    $data->id = $localgroup->id;
                     $trace->output("Updating group {$name} in {$courseid} with idnumber {$idnumber}");
                     groups_update_group($data);
                 }
